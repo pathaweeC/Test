@@ -20,26 +20,50 @@ export class DashboardComponent implements OnInit {
   public chartEmail: any;
   public chartHours: any;
 
-  private updateSubscription: Subscription;
+  // private updateSubscription: Subscription;
+  public intervallTimer = interval(10000);
+  private subscription;
 
   vac = [];
   time = [];
 
   constructor(private callDB: callDBService) { }
+  ngOnInit() {
+
+    this.getVoltageFromDB();
+    // this.updateChart()
+    // this.updateSubscription = interval(10000).subscribe(
+    //   (val) => {
+    //     // this.getVoltageFromDB()
+    //     this.updateChart()
+    //     this.vac = []
+    //     this.time = []
+    //   });
+    this.subscription = this.intervallTimer.subscribe(() => this.getVoltageFromDB());
+
+  }
+  unSubscription () {
+    this.subscription.unsubscribe();
+  }
 
   getVoltageFromDB() {
     this.callDB.getVolt()
       .subscribe((res: any) => {
         console.log(res);
+        const time = [];
+        const vac = []
         for (const iterator of res) {
-          this.vac.push(Number(iterator?.VAC));
-          this.time.push(iterator?.Time);
+          // this.vac.push(Number(iterator?.VAC));
+          // this.time.push(iterator?.Time);
+          time.push(iterator?.Time);
+          vac.push(Number(iterator?.VAC));
         }
+        this.updateChart(time, vac);
       })
   }
 
-  updateChart() {
-    this.getVoltageFromDB();
+  updateChart(time, vac) {
+    // this.getVoltageFromDB();
     this.chartColor = "#FFFFFF";
 
     this.canvas = document.getElementById("chartHours");
@@ -49,14 +73,14 @@ export class DashboardComponent implements OnInit {
       type: 'line',
 
       data: {
-        labels: this.time,
+        labels: time,
         datasets: [{
           borderColor: "#6bd098",
           backgroundColor: "#6bd098",
           pointRadius: 0,
           pointHoverRadius: 0,
           borderWidth: 3,
-          data: this.vac
+          data: vac
         }//,
         // {
         //   borderColor: "#f17e5d",
@@ -232,18 +256,5 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
 
-    // this.getVoltageFromDB();
-    this.updateChart()
-    this.updateSubscription = interval(10000).subscribe(
-      (val) => {
-        // this.getVoltageFromDB()
-        this.updateChart()
-        this.vac = []
-        this.time = []
-      });
-
-
-  }
 }
