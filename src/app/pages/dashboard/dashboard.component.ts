@@ -21,7 +21,7 @@ export class DashboardComponent implements OnInit {
   public chartHours: any;
 
   // private updateSubscription: Subscription;
-  public intervallTimer = interval(10000);
+  public intervallTimer = interval(300000);
   private subscription;
 
   vac = [];
